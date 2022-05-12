@@ -13,7 +13,7 @@ import debounce from 'lodash.debounce';
 const DEBOUNCE_DELAY = 300;
 
 const inputForm = document.querySelector('#search-form');
-const galleryDIV = document.querySelector('.gallery');
+const picturesGallery = document.querySelector('.gallery');
 
 window.addEventListener('scroll', debounce(onScroll, DEBOUNCE_DELAY));
 function onScroll(e) {
@@ -109,11 +109,11 @@ function matchQuery(response) {
   return response;
 }
 
-export function drawPictures(markUp) {
-  galleryDIV.insertAdjacentHTML('beforeend', markUp);
+function drawPictures(markUp) {
+  picturesGallery.insertAdjacentHTML('beforeend', markUp);
   gallery.refresh();
 }
 
-export function cleanGallery() {
-  galleryDIV.innerHTML = '';
+function cleanGallery() {
+  picturesGallery.innerHTML = '';
 }
