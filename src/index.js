@@ -31,6 +31,7 @@ function onScroll(e) {
       .then(smoothScroll)
       .catch(function (error) {
         // handle error
+        //
         if (error?.response?.status === 400) {
           Notiflix.Notify.failure('Page is out of valid range');
           picturesApiService.currentPage -= 1;
