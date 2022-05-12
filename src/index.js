@@ -31,12 +31,12 @@ function onScroll(e) {
       .then(smoothScroll)
       .catch(function (error) {
         // handle error
-        if (error.response.status === 400) {
+        if (error?.response?.status === 400) {
           Notiflix.Notify.failure('Page is out of valid range');
           picturesApiService.currentPage -= 1;
         }
 
-        if (error.data.hits.length === 0) {
+        if (error?.data?.hits?.length === 0) {
           Notiflix.Notify.failure(`We're sorry, but you've reached the end of search results.`);
           picturesApiService.currentPage -= 1;
         }
