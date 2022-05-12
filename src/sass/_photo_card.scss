@@ -1,0 +1,54 @@
+* {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #eee;
+}
+
+a {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+}
+
+a img {
+  width: 320px;
+  height: 280px;
+  display: block;
+  object-fit: cover;
+}
+
+.gallery {
+  max-width: 1400px;
+  text-align: center;
+  margin: 0 auto;
+  display: flex;
+  align-items: stretch;
+
+  flex-wrap: wrap;
+  margin-top: -10px;
+}
+.thumb {
+  width: 320px;
+  margin-top: 10px;
+  margin-right: 10px;
+}
+
+.photo-card {
+  width: 100%;
+}
+
+.info {
+  padding: 0 10px;
+  display: flex;
+  justify-content: space-between;
+  box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.12), 0px 1px 1px rgba(0, 0, 0, 0.14),
+    0px 2px 1px rgba(0, 0, 0, 0.2);
+  border-radius: 0px 0px 4px 4px;
+}
+.info-item {
+  display: flex;
+  flex-direction: column;
+}
