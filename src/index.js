@@ -16,32 +16,28 @@ const inputForm = document.querySelector('#search-form');
 const picturesGallery = document.querySelector('.gallery');
 
 window.addEventListener('scroll', debounce(onScroll, DEBOUNCE_DELAY));
-function onScroll(e) {
+async function onScroll(e) {
   if (
     document.documentElement.scrollHeight - document.documentElement.scrollTop <=
-    document.documentElement.clientHeight + 5
+    document.documentElement.clientHeight + 1
   ) {
     picturesApiService.currentPage += 1;
-    picturesApiService
-      .fetchURL()
-      .then(isPicturesOver)
-      .then(parsePictures)
-      .then(makePicturesUI)
-      .then(drawPictures)
-      .then(smoothScroll)
-      .catch(function (error) {
-        // handle error
-        //
-        if (error?.response?.status === 400) {
-          Notiflix.Notify.failure('Page is out of valid range');
-          picturesApiService.currentPage -= 1;
-        }
+    try {
+      const pics = await picturesApiService.fetchURL();
+      const picsOk = await isPicturesOver(pics);
+      showPictures(picsOk);
+      smoothScroll();
+    } catch (error) {
+      if (error?.response?.status === 400) {
+        Notiflix.Notify.failure('Page is out of valid range');
+        picturesApiService.currentPage -= 1;
+      }
 
-        if (error?.data?.hits?.length === 0) {
-          Notiflix.Notify.failure(`We're sorry, but you've reached the end of search results.`);
-          picturesApiService.currentPage -= 1;
-        }
-      });
+      if (error?.data?.hits?.length === 0) {
+        Notiflix.Notify.failure(`We're sorry, but you've reached the end of search results.`);
+        picturesApiService.currentPage -= 1;
+      }
+    }
   }
 }
 
@@ -54,30 +50,65 @@ const picturesApiService = new PicturesApiService();
 
 inputForm.addEventListener('submit', onSubmitForm);
 
-function onSubmitForm(e) {
+async function onSubmitForm(e) {
   e.preventDefault();
-  //   console.log(e);
 
   const inputedValue = e.currentTarget.searchQuery.value;
   if (!inputedValue) {
     return;
   }
+
   cleanGallery();
 
   picturesApiService.query = inputedValue;
   picturesApiService.currentPage = 1;
 
-  picturesApiService
-    .fetchURL()
-    .then(matchQuery)
-    .then(parsePictures)
-    .then(makePicturesUI)
-    .then(drawPictures)
-    .catch(function (error) {
-      // handle error
-      console.log(error);
-    });
+  try {
+    const pics = await picturesApiService.fetchURL();
+    const picsOk = await matchQuery(pics);
+    showPictures(picsOk);
+  } catch (error) {
+    console.log(error);
+  }
+
   e.target.reset();
+}
+
+// is no pictures or query failed
+
+async function isPicturesOver(response) {
+  if (response.data.hits.length === 0) {
+    throw response;
+  }
+  return response;
+}
+
+async function matchQuery(response) {
+  if (response.data.hits.length === 0) {
+    Notiflix.Notify.failure(
+      'Sorry, there are no images matching your search query. Please try again.',
+    );
+    throw 'no images were found';
+  }
+  Notiflix.Notify.success(`Hooray! We found ${response.data.totalHits} images.`);
+  return await response;
+}
+
+// gallery render
+
+function showPictures(picsOk) {
+  const parsedPictures = parsePictures(picsOk);
+  const picturesMarkup = makePicturesUI(parsedPictures);
+  renderPictures(picturesMarkup);
+}
+
+function renderPictures(markUp) {
+  picturesGallery.insertAdjacentHTML('beforeend', markUp);
+  gallery.refresh();
+}
+
+function cleanGallery() {
+  picturesGallery.innerHTML = '';
 }
 
 function smoothScroll() {
@@ -89,31 +120,4 @@ function smoothScroll() {
     top: cardHeight * 2,
     behavior: 'smooth',
   });
-}
-
-function isPicturesOver(response) {
-  if (response.data.hits.length === 0) {
-    throw response;
-  }
-  return response;
-}
-
-function matchQuery(response) {
-  if (response.data.hits.length === 0) {
-    Notiflix.Notify.failure(
-      'Sorry, there are no images matching your search query. Please try again.',
-    );
-    throw 'no images were found';
-  }
-  Notiflix.Notify.success(`Hooray! We found ${response.data.totalHits} images.`);
-  return response;
-}
-
-function drawPictures(markUp) {
-  picturesGallery.insertAdjacentHTML('beforeend', markUp);
-  gallery.refresh();
-}
-
-function cleanGallery() {
-  picturesGallery.innerHTML = '';
 }
